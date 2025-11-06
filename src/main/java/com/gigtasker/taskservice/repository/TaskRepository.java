@@ -1,6 +1,6 @@
-package com.example.taskservice.repository;
+package com.gigtasker.taskservice.repository;
 
-import com.example.taskservice.entity.Task;
+import com.gigtasker.taskservice.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

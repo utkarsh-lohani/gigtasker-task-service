@@ -1,9 +1,9 @@
-package com.example.taskservice.service;
+package com.gigtasker.taskservice.service;
 
-import com.example.taskservice.dto.TaskDTO;
-import com.example.taskservice.entity.Task;
-import com.example.taskservice.exception.ResourceNotFoundException;
-import com.example.taskservice.repository.TaskRepository;
+import com.gigtasker.taskservice.dto.TaskDTO;
+import com.gigtasker.taskservice.entity.Task;
+import com.gigtasker.taskservice.exception.ResourceNotFoundException;
+import com.gigtasker.taskservice.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

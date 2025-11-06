@@ -1,4 +1,4 @@
-package com.example.taskservice;
+package com.gigtasker.taskservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.example.taskservice.exception;
+package com.gigtasker.taskservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

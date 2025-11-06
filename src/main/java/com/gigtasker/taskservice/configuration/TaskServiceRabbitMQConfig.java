@@ -1,4 +1,4 @@
-package com.example.taskservice.configuration;
+package com.gigtasker.taskservice.configuration;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

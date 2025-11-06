@@ -1,4 +1,4 @@
-package com.example.taskservice.entity;
+package com.gigtasker.taskservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

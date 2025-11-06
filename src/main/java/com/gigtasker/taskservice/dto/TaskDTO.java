@@ -1,6 +1,6 @@
-package com.example.taskservice.dto;
+package com.gigtasker.taskservice.dto;
 
-import com.example.taskservice.entity.Task;
+import com.gigtasker.taskservice.entity.Task;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

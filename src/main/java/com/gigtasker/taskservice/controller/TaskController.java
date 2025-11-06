@@ -1,7 +1,7 @@
-package com.example.taskservice.controller;
+package com.gigtasker.taskservice.controller;
 
-import com.example.taskservice.dto.TaskDTO;
-import com.example.taskservice.service.TaskService;
+import com.gigtasker.taskservice.dto.TaskDTO;
+import com.gigtasker.taskservice.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
