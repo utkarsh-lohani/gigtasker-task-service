@@ -1,6 +1,7 @@
 package com.gigtasker.taskservice.dto;
 
 import com.gigtasker.taskservice.entity.Task;
+import com.gigtasker.taskservice.enums.TaskStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ public class TaskDTO implements Serializable {
     private Long id;
     private String title;
     private String description;
-    private String status;
+    private TaskStatus status;
     private Long posterUserId;
 
     public static TaskDTO fronEntity(Task task) {

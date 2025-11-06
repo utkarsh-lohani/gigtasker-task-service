@@ -2,6 +2,7 @@ package com.gigtasker.taskservice.service;
 
 import com.gigtasker.taskservice.dto.TaskDTO;
 import com.gigtasker.taskservice.entity.Task;
+import com.gigtasker.taskservice.enums.TaskStatus;
 import com.gigtasker.taskservice.exception.ResourceNotFoundException;
 import com.gigtasker.taskservice.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,6 @@ public class TaskService {
                 .id(taskDTO.getId())
                 .title(taskDTO.getTitle())
                 .description(taskDTO.getDescription())
-                .status(taskDTO.getStatus())
                 .posterUserId(taskDTO.getPosterUserId()).build();
 
         Task savedTask = taskRepository.save(task);
@@ -64,5 +64,25 @@ public class TaskService {
         return taskRepository.findById(taskId)
                 .map(TaskDTO::fronEntity)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+    }
+
+    @Transactional
+    public TaskDTO assignTask(Long taskId) {
+        // 1. Find the task
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
+
+        // 2. Check if it's already assigned
+        if (task.getStatus() != TaskStatus.OPEN) {
+            // You could create a custom exception here
+            throw new IllegalStateException("Task is not OPEN and cannot be assigned.");
+        }
+
+        // 3. Update the status
+        task.setStatus(TaskStatus.ASSIGNED);
+        Task savedTask = taskRepository.save(task);
+
+        // 4. We can also publish a "task.assigned" event here!
+        return TaskDTO.fronEntity(savedTask);
     }
 }

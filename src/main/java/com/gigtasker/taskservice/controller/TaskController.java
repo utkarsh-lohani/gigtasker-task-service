@@ -37,4 +37,10 @@ public class TaskController {
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long taskId) {
         return ResponseEntity.ok(taskService.findTaskById(taskId));
     }
+
+    @PutMapping("/{taskId}/assign")
+    public ResponseEntity<TaskDTO> assignTask(@PathVariable Long taskId) {
+        TaskDTO assignedTask = taskService.assignTask(taskId);
+        return ResponseEntity.ok(assignedTask);
+    }
 }

@@ -1,5 +1,6 @@
 package com.gigtasker.taskservice.entity;
 
+import com.gigtasker.taskservice.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,6 @@ public class Task {
 
     private Long posterUserId;
 
-    @Builder.Default
-    private String status = "OPEN";
+    @Enumerated(EnumType.STRING) @Builder.Default
+    private TaskStatus status = TaskStatus.OPEN;
 }
