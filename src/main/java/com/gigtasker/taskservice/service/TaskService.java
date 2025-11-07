@@ -85,4 +85,12 @@ public class TaskService {
         // 4. We can also publish a "task.assigned" event here!
         return TaskDTO.fronEntity(savedTask);
     }
+
+    @Transactional(readOnly = true)
+    public List<TaskDTO> findTasksByIds(List<Long> ids) {
+        return taskRepository.findByIdIn(ids)
+                .stream()
+                // We're re-using the TaskDTO's builder/factory method.
+                .map(TaskDTO::fronEntity).toList();
+    }
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findTaskByPosterUserId(Long posterUserId);
+    List<Task> findByIdIn(List<Long> ids);
 }

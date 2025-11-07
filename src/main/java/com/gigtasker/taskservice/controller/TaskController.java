@@ -43,4 +43,9 @@ public class TaskController {
         TaskDTO assignedTask = taskService.assignTask(taskId);
         return ResponseEntity.ok(assignedTask);
     }
+
+    @PostMapping("/batch")
+    public ResponseEntity<List<TaskDTO>> getTasksByIds(@RequestBody List<Long> taskIds) {
+        return ResponseEntity.ok(taskService.findTasksByIds(taskIds));
+    }
 }
