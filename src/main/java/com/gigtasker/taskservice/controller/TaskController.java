@@ -39,9 +39,14 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}/assign")
-    public ResponseEntity<TaskDTO> assignTask(@PathVariable Long taskId) {
-        TaskDTO assignedTask = taskService.assignTask(taskId);
+    public ResponseEntity<TaskDTO> assignTask(@PathVariable Long taskId, @RequestBody Long userId) {
+        TaskDTO assignedTask = taskService.assignTask(taskId, userId);
         return ResponseEntity.ok(assignedTask);
+    }
+
+    @PutMapping("/{taskId}/complete")
+    public ResponseEntity<TaskDTO> completeTask(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.completeTask(taskId));
     }
 
     @PostMapping("/batch")

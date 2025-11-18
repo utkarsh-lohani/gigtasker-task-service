@@ -19,14 +19,16 @@ public class TaskDTO implements Serializable {
     private String title;
     private String description;
     private TaskStatus status;
+    private Long assignedUserId;
     private Long posterUserId;
 
-    public static TaskDTO fronEntity(Task task) {
+    public static TaskDTO fromEntity(Task task) {
         return TaskDTO.builder() // Map to DTOs
                 .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .posterUserId(task.getPosterUserId())
+                .assignedUserId(task.getAssignedUserId())
                 .status(task.getStatus())
                 .build();
     }

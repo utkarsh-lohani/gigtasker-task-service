@@ -21,8 +21,8 @@ public class Task {
 
     private String title;
     private String description;
-
     private Long posterUserId;
+    private Long assignedUserId;
 
     @Enumerated(EnumType.STRING) @Builder.Default
     private TaskStatus status = TaskStatus.OPEN;
