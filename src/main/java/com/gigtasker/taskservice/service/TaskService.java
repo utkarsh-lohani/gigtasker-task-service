@@ -31,14 +31,24 @@ public class TaskService {
 
     public static final String EXCHANGE_NAME = "task-exchange";
     public static final String ROUTING_KEY = "task.created";
+    public static final String TASK_COMPLETED_KEY = "task.completed";
 
     @Transactional
     public TaskDTO createTask(TaskDTO taskDTO) {
+
+        int limit = (taskDTO.getMaxBidsPerUser() != null) ? taskDTO.getMaxBidsPerUser() : 3;
+        if (limit > 10) limit = 10; // Hard cap
+        if (limit < 1) limit = 1;
+
         Task task = Task.builder()
-                .id(taskDTO.getId())
                 .title(taskDTO.getTitle())
                 .description(taskDTO.getDescription())
-                .posterUserId(taskDTO.getPosterUserId()).build();
+                .posterUserId(taskDTO.getPosterUserId())
+                .deadline(taskDTO.getDeadline())
+                .minPay(taskDTO.getMinPay())
+                .maxPay(taskDTO.getMaxPay())
+                .maxBidsPerUser(limit)
+                .build();
 
         Task savedTask = taskRepository.save(task);
 
@@ -115,7 +125,11 @@ public class TaskService {
         task.setStatus(TaskStatus.COMPLETED);
         Task savedTask = taskRepository.save(task);
 
-        return TaskDTO.fromEntity(savedTask);
+        TaskDTO taskDTO = TaskDTO.fromEntity(savedTask);
+
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, TASK_COMPLETED_KEY, taskDTO);
+
+        return taskDTO;
     }
 
     @Transactional(readOnly = true)

@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -21,6 +23,10 @@ public class TaskDTO implements Serializable {
     private TaskStatus status;
     private Long assignedUserId;
     private Long posterUserId;
+    private LocalDateTime deadline;
+    private BigDecimal minPay;
+    private BigDecimal maxPay;
+    private Integer maxBidsPerUser;
 
     public static TaskDTO fromEntity(Task task) {
         return TaskDTO.builder() // Map to DTOs
@@ -30,6 +36,10 @@ public class TaskDTO implements Serializable {
                 .posterUserId(task.getPosterUserId())
                 .assignedUserId(task.getAssignedUserId())
                 .status(task.getStatus())
+                .deadline(task.getDeadline())
+                .minPay(task.getMinPay())
+                .maxPay(task.getMaxPay())
+                .maxBidsPerUser(task.getMaxBidsPerUser())
                 .build();
     }
 }
