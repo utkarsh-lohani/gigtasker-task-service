@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TaskServiceRabbitMQConfig {
+public class RabbitMQConfig {
 
     // 1. This bean will be used to convert messages to JSON
     @Bean

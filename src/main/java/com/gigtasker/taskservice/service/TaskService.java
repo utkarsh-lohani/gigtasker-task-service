@@ -1,6 +1,7 @@
 package com.gigtasker.taskservice.service;
 
 import com.gigtasker.taskservice.dto.TaskDTO;
+import com.gigtasker.taskservice.dto.UserDTO;
 import com.gigtasker.taskservice.entity.Task;
 import com.gigtasker.taskservice.enums.TaskStatus;
 import com.gigtasker.taskservice.exception.ResourceNotFoundException;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -69,10 +71,10 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<TaskDTO> findAllTasks() {
-        return taskRepository.findAll() // 1. Get all Task entities
-                .stream()             // 2. Stream them
+        return taskRepository.findAll()
+                .stream()
                 .map(TaskDTO::fromEntity)
-                .toList(); // 4. Collect as a List
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -106,8 +108,7 @@ public class TaskService {
     @Transactional
     public TaskDTO completeTask(Long taskId) {
         // 1. Get the current user's token
-        String token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication())
-                .getToken().getTokenValue();
+        String token = getAuthToken();
 
         // 2. Call user-service to get the REAL ID of the caller
         Long currentUserId = getCurrentUserIdFromToken(token);
@@ -125,11 +126,27 @@ public class TaskService {
         task.setStatus(TaskStatus.COMPLETED);
         Task savedTask = taskRepository.save(task);
 
-        TaskDTO taskDTO = TaskDTO.fromEntity(savedTask);
+        UUID posterUuid = fetchUserUuid(token, task.getPosterUserId());
+        UUID workerUuid = fetchUserUuid(token, task.getAssignedUserId());
 
-        rabbitTemplate.convertAndSend(EXCHANGE_NAME, TASK_COMPLETED_KEY, taskDTO);
+        record TaskCompletedEvent(TaskDTO task, UUID posterId, UUID workerId) {}
+
+        TaskDTO taskDTO = TaskDTO.fromEntity(savedTask);
+        TaskCompletedEvent event = new TaskCompletedEvent(taskDTO, posterUuid, workerUuid);
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, TASK_COMPLETED_KEY, event);
 
         return taskDTO;
+    }
+
+    private UUID fetchUserUuid(String token, Long userId) {
+        // reuse your webclient logic here
+        return webClientBuilder.build()
+                .get().uri("http://user-service/api/v1/users/" + userId)
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .bodyToMono(UserDTO.class)
+                .map(UserDTO::getKeycloakId)
+                .block();
     }
 
     @Transactional(readOnly = true)
@@ -153,5 +170,9 @@ public class TaskService {
 
         if (user == null) throw new UsernameNotFoundException("User not found");
         return user.id();
+    }
+
+    private String getAuthToken() {
+        return ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getToken().getTokenValue();
     }
 }
