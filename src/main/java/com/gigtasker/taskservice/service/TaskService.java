@@ -1,5 +1,7 @@
 package com.gigtasker.taskservice.service;
 
+import com.gigtasker.taskservice.dto.TaskCancelledEvent;
+import com.gigtasker.taskservice.dto.TaskCompletedEvent;
 import com.gigtasker.taskservice.dto.TaskDTO;
 import com.gigtasker.taskservice.dto.UserDTO;
 import com.gigtasker.taskservice.entity.Task;
@@ -34,6 +36,7 @@ public class TaskService {
     public static final String EXCHANGE_NAME = "task-exchange";
     public static final String ROUTING_KEY = "task.created";
     public static final String TASK_COMPLETED_KEY = "task.completed";
+    public static final String TASK_CANCELLED_KEY = "task.cancelled";
 
     @Transactional
     public TaskDTO createTask(TaskDTO taskDTO) {
@@ -129,8 +132,6 @@ public class TaskService {
         UUID posterUuid = fetchUserUuid(token, task.getPosterUserId());
         UUID workerUuid = fetchUserUuid(token, task.getAssignedUserId());
 
-        record TaskCompletedEvent(TaskDTO task, UUID posterId, UUID workerId) {}
-
         TaskDTO taskDTO = TaskDTO.fromEntity(savedTask);
         TaskCompletedEvent event = new TaskCompletedEvent(taskDTO, posterUuid, workerUuid);
         rabbitTemplate.convertAndSend(EXCHANGE_NAME, TASK_COMPLETED_KEY, event);
@@ -170,6 +171,44 @@ public class TaskService {
 
         if (user == null) throw new UsernameNotFoundException("User not found");
         return user.id();
+    }
+
+    @Transactional
+    public void cancelTask(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        // 1. Security Check: Ensure current user is the poster
+        // (Assuming you extract user ID from token context in Controller or here)
+        String token = getAuthToken();
+
+        Long userId = getCurrentUserIdFromToken(token);
+
+        if (!userId.equals(task.getPosterUserId())) {
+            throw new UnauthorizedAccessException("You are not the assigned worker for this task!");
+        }
+
+        if (task.getStatus() == TaskStatus.COMPLETED || task.getStatus() == TaskStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot cancel a finished task.");
+        }
+
+        boolean wasAssigned = (task.getStatus() == TaskStatus.ASSIGNED);
+
+        // 2. Update Status
+        task.setStatus(TaskStatus.CANCELLED);
+        taskRepository.save(task);
+
+        // 3. If money was held, trigger Refund
+        if (wasAssigned) {
+            UUID posterUuid = fetchUserUuid(token, task.getPosterUserId());
+
+            TaskCancelledEvent event = new TaskCancelledEvent(task.getId(), posterUuid);
+            rabbitTemplate.convertAndSend(EXCHANGE_NAME, TASK_CANCELLED_KEY, event);
+
+            log.info("Task {} cancelled. Refund event sent for Poster {}", taskId, posterUuid);
+        } else {
+            log.info("Task {} cancelled. No refund needed (was not assigned).", taskId);
+        }
     }
 
     private String getAuthToken() {

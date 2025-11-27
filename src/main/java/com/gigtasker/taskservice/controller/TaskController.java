@@ -53,4 +53,10 @@ public class TaskController {
     public ResponseEntity<List<TaskDTO>> getTasksByIds(@RequestBody List<Long> taskIds) {
         return ResponseEntity.ok(taskService.findTasksByIds(taskIds));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancelTask(@PathVariable Long id) {
+        taskService.cancelTask(id);
+        return ResponseEntity.noContent().build();
+    }
 }
